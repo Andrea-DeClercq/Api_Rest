@@ -3,7 +3,6 @@
 namespace App\Controller;
 
 use App\Entity\Movie;
-use App\Repository\MovieRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -32,7 +31,7 @@ class MovieController extends AbstractController
     }
 
     #[Route('/movies', name:"movies", methods: ['GET'])]
-    public function getAllMovies(MovieRepository $movieRepository): JsonResponse
+    public function getAllMovies(): JsonResponse
     {
         $movies = $this->em->getRepository(Movie::class)->findAll();
         $jsonSerializer = $this->serializer->serialize($movies, 'json');
