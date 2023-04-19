@@ -6,33 +6,52 @@ use App\Entity\Movie;
 use App\Repository\MovieRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Serializer\SerializerInterface;
 
 #[Route('/api', name:'api_')]
 class MovieController extends AbstractController
 {
     public function __construct(
-        public EntityManagerInterface $em
+        public EntityManagerInterface $em,
+        public SerializerInterface $serializer,
     )
     {
-        
+
     }
 
-    #[Route('/welcome', name: 'welcome')]
-    public function index(): Response
+    #[Route('/welcome', name: 'welcome', methods: ['GET'])]
+    public function index(): JsonResponse
     {
-        return $this->json([
+        return new JsonResponse([
             'message' => 'Bienvenue sur l\'API DigitalMovie',
             'path' => 'src/Controller/MovieController.php'
         ]);
     }
 
-    #[Route('/movies', name:"movies")]
-    public function getMovies(): Response
+    #[Route('/movies', name:"movies", methods: ['GET'])]
+    public function getAllMovies(MovieRepository $movieRepository): JsonResponse
     {
         $movies = $this->em->getRepository(Movie::class)->findAll();
+        $jsonSerializer = $this->serializer->serialize($movies, 'json');
+        return new JsonResponse($jsonSerializer, Response::HTTP_OK, [], true);
+    }
 
-        return $this->json($movies);
+    #[Route('/movies/{id}', name:'movies_details', methods: ['GET'])]
+    public function getDetailsMovies(int $id): JsonResponse
+    {
+        $movie = $this->em->getRepository(Movie::class)->findBy(['id'=> $id]);
+        if($movie)
+        {
+            $jsonSerializer = $this->serializer->serialize($movie, 'json');
+            return new JsonResponse($jsonSerializer, Response::HTTP_OK, [], true);
+        }
+
+        return new JsonResponse([
+            'status' => 'error',
+            'message' => 'Pas de film'
+        ], Response::HTTP_NOT_FOUND);
     }
 }
