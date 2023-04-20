@@ -6,6 +6,7 @@ use App\Entity\Movie;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Serializer\SerializerInterface;
@@ -31,9 +32,11 @@ class MovieController extends AbstractController
     }
 
     #[Route('/movies', name:"movies", methods: ['GET'])]
-    public function getAllMovies(): JsonResponse
+    public function getAllMovies(Request $request): JsonResponse
     {
-        $movies = $this->em->getRepository(Movie::class)->findAll();
+        $page = $request->get('page', 1);
+        $limit = $request->get('limit', 3);
+        $movies = $this->em->getRepository(Movie::class)->findAllWithPagination($page, $limit);
         $jsonSerializer = $this->serializer->serialize($movies, 'json');
         return new JsonResponse($jsonSerializer, Response::HTTP_OK, [], true);
     }
