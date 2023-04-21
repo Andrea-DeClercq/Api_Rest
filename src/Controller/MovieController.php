@@ -12,6 +12,9 @@ use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Serializer\SerializerInterface;
 use Symfony\Contracts\Cache\ItemInterface;
 use Symfony\Contracts\Cache\TagAwareCacheInterface;
+use Nelmio\ApiDocBundle\Annotation\Model;
+use Nelmio\ApiDocBundle\Annotation\Security;
+use OpenApi\Annotations as OA;
 
 #[Route('/api', name:'api_')]
 class MovieController extends AbstractController
@@ -34,6 +37,31 @@ class MovieController extends AbstractController
         ]);
     }
 
+    /**
+     * Get all movies
+     *
+     * @OA\Response(
+     *     response=200,
+     *     description="Retourne la liste des films",
+     *     @OA\JsonContent(
+     *     type="array",
+     *     @OA\Items(ref=@Model(type=Movies::class))
+     *     )
+     * )
+     * @OA\Parameter(
+     *      name="page",
+     *      in="query",
+     *      description="Le numéro de la page voulu",
+     *      @OA\Schema(type="int")
+     * )
+     * @OA\Parameter(
+     *      name="limit",
+     *      in="query",
+     *      description="Le nombre de résultat par page",
+     *      @OA\Schema(type="int")
+     * )
+     * @OA\Tag(name="Movies")
+     */
     #[Route('/movies', name:"movies", methods: ['GET'])]
     public function getAllMovies(Request $request): JsonResponse
     {
@@ -46,7 +74,6 @@ class MovieController extends AbstractController
             $item->expiresAfter(900);
             return $this->em->getRepository(Movie::class)->findAllWithPagination($page, $limit);
         });
-
         if(!$movieList){
             return new JsonResponse([
                 'status' => 'error',
@@ -54,14 +81,26 @@ class MovieController extends AbstractController
             ]);
         }
 
-        $jsonSerializer = $this->serializer->serialize($movieList, 'json');
+        $jsonSerializer = $this->serializer->serialize($movieList, 'json', ['groups' => 'getMovies']);
         return new JsonResponse($jsonSerializer, Response::HTTP_OK, [], true);
     }
 
+    /**
+     * Get Movies details
+     *
+     * @OA\Response(
+     *     response=200,
+     *     description="Retourne les détails d'un film",
+     *     @OA\JsonContent(
+     *     type="array",
+     *     @OA\Items(ref=@Model(type=Movies::class))
+     *     )
+     * )
+     * @OA\Tag(name="Movies")
+     */
     #[Route('/movies/{id}', name:'movies_details', methods: ['GET'])]
     public function getDetailsMovies(int $id): JsonResponse
     {
-
         $idCache = 'getMoviesDetails-' . $id;
         $movieDetails = $this->cachePool->get($idCache, function (ItemInterface $item) use($id){
             $item->tag('moviesDetailsCache');

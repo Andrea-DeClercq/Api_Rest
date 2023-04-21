@@ -13,6 +13,9 @@ use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Serializer\SerializerInterface;
 use Symfony\Contracts\Cache\ItemInterface;
 use Symfony\Contracts\Cache\TagAwareCacheInterface;
+use Nelmio\ApiDocBundle\Annotation\Model;
+use Nelmio\ApiDocBundle\Annotation\Security;
+use OpenApi\Annotations as OA;
 
 #[Route('/api', name:'api_')]
 class UserController extends AbstractController
@@ -27,6 +30,31 @@ class UserController extends AbstractController
 
     }
 
+    /**
+     * Get all users
+     *
+     * @OA\Response(
+     *     response=200,
+     *     description="Retourne la liste des users",
+     *     @OA\JsonContent(
+     *     type="array",
+     *     @OA\Items(ref=@Model(type=User::class))
+     *     )
+     * )
+     * @OA\Parameter(
+     *      name="page",
+     *      in="query",
+     *      description="Le numéro de la page voulu",
+     *      @OA\Schema(type="int")
+     * )
+     * @OA\Parameter(
+     *      name="limit",
+     *      in="query",
+     *      description="Le nombre de résultat par page",
+     *      @OA\Schema(type="int")
+     * )
+     * @OA\Tag(name="User")
+     */
     #[Route('/users', name:"users", methods: ['GET'])]
     public function getAllUsers(Request $request): JsonResponse
     {
@@ -51,6 +79,20 @@ class UserController extends AbstractController
         return new JsonResponse($jsonSerializer, Response::HTTP_OK, [], true);
     }
 
+
+    /**
+     * Get Movies details
+     *
+     * @OA\Response(
+     *     response=200,
+     *     description="Retourne les détails d'un film",
+     *     @OA\JsonContent(
+     *     type="array",
+     *     @OA\Items(ref=@Model(type=User::class))
+     *     )
+     * )
+     * @OA\Tag(name="User")
+     */
     #[Route('/users/{id}', name:'users_details', methods: ['GET'])]
     public function getDetailsUsers(int $id): JsonResponse
     {
@@ -100,7 +142,6 @@ class UserController extends AbstractController
                 'message' => 'User added to database'
             ]);
         }
-
         return new JsonResponse([
             'status' => 'error',
             'message' => 'Username ou password can\'t be null'

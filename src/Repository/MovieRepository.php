@@ -47,7 +47,7 @@ class MovieRepository extends ServiceEntityRepository
             ->setMaxResults($limit);
 
             $query = $qb->getQuery();
-            $query->setFetchMode(Movie::class, 'movie', ClassMetadata::FETCH_EAGER);
+            $query->setFetchMode(Movie::class, 'author', ClassMetadata::FETCH_EAGER);
             return $query->getResult();
     }
 //    /**
