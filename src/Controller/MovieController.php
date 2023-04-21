@@ -4,12 +4,14 @@ namespace App\Controller;
 
 use App\Entity\Movie;
 use Doctrine\ORM\EntityManagerInterface;
+use JMS\Serializer\SerializationContext;
+use JMS\Serializer\SerializerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
-use Symfony\Component\Serializer\SerializerInterface;
+// use Symfony\Component\Serializer\SerializerInterface;
 use Symfony\Contracts\Cache\ItemInterface;
 use Symfony\Contracts\Cache\TagAwareCacheInterface;
 use Nelmio\ApiDocBundle\Annotation\Model;
@@ -80,8 +82,8 @@ class MovieController extends AbstractController
                 'message' => 'Il est possible qu\'il n\'y ait pas assez de résultat pour être affiché sur cette page'
             ]);
         }
-
-        $jsonSerializer = $this->serializer->serialize($movieList, 'json', ['groups' => 'getMovies']);
+        $context = SerializationContext::create()->setGroups(['getMovies']);
+        $jsonSerializer = $this->serializer->serialize($movieList, 'json', $context);
         return new JsonResponse($jsonSerializer, Response::HTTP_OK, [], true);
     }
 
