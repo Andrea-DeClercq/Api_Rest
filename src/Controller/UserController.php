@@ -11,6 +11,8 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Serializer\SerializerInterface;
+use Symfony\Contracts\Cache\ItemInterface;
+use Symfony\Contracts\Cache\TagAwareCacheInterface;
 
 #[Route('/api', name:'api_')]
 class UserController extends AbstractController
@@ -19,26 +21,48 @@ class UserController extends AbstractController
     public function __construct(
         public EntityManagerInterface $em,
         public SerializerInterface $serializer,
+        public TagAwareCacheInterface $cachePool,
     )
     {
 
     }
 
     #[Route('/users', name:"users", methods: ['GET'])]
-    public function getAllUsers(): JsonResponse
+    public function getAllUsers(Request $request): JsonResponse
     {
-        $users = $this->em->getRepository(User::class)->findAll();
-        $jsonSerializer = $this->serializer->serialize($users, 'json', ['groups' => 'userInfo']);
+        $page = $request->get('page', 1);
+        $limit = $request->get('limit', 3);
+
+        $idCache = 'getAllUsers-' . $page . '-' . $limit;
+        $userList = $this->cachePool->get($idCache, function (ItemInterface $item) use ($page,$limit){
+            $item->tag('usersCache');
+            return $this->em->getRepository(User::class)->findAllWithPagination($page, $limit);
+        });
+
+        if(!$userList){
+            return new JsonResponse([
+                'status' => 'error',
+                'message' => 'Il est possible qu\'il n\'y ait pas assez de résultat pour être affiché sur cette page'
+            ]);
+        }
+
+        $jsonSerializer = $this->serializer->serialize($userList, 'json', ['groups' => 'userInfo']);
         return new JsonResponse($jsonSerializer, Response::HTTP_OK, [], true);
     }
 
     #[Route('/users/{id}', name:'users_details', methods: ['GET'])]
     public function getDetailsUsers(int $id): JsonResponse
     {
-        $movie = $this->em->getRepository(User::class)->findBy(['id'=> $id]);
-        if($movie)
+
+        $idCache = 'getUsersDetails-' . $id;
+        $userDetails = $this->cachePool->get($idCache, function(ItemInterface $item) use ($id){
+            $item->tag('usersDetailsCache');
+            return $this->em->getRepository(User::class)->findBy(['id'=> $id]);
+        });
+
+        if($userDetails)
         {
-            $jsonSerializer = $this->serializer->serialize($movie, 'json', ['groups' => 'userInfo']);
+            $jsonSerializer = $this->serializer->serialize($userDetails, 'json', ['groups' => 'userInfo']);
             return new JsonResponse($jsonSerializer, Response::HTTP_OK, [], true);
         }
 
@@ -48,7 +72,7 @@ class UserController extends AbstractController
         ], Response::HTTP_NOT_FOUND);
     }
 
-    #[Route('/create/user', name:'create_user', methods:['POST'])]
+    #[Route('/users/create', name:'create_user', methods:['POST'])]
     public function createNewUser(Request $request, UserPasswordHasherInterface $hasher): JsonResponse
     {  
         $userName = $request->request->get('username');
@@ -81,7 +105,7 @@ class UserController extends AbstractController
         ]);
     }
 
-    #[Route('/delete/user/{id}', name:'delete_user', methods: ['DELETE'])]
+    #[Route('/users/{id}/delete', name:'delete_user', methods: ['DELETE'])]
     public function deleteUserFromId(int $id): JsonResponse
     {
         $movie = $this->em->getRepository(User::class)->findBy(['id'=> $id]);

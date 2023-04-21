@@ -10,6 +10,8 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Serializer\SerializerInterface;
+use Symfony\Contracts\Cache\ItemInterface;
+use Symfony\Contracts\Cache\TagAwareCacheInterface;
 
 #[Route('/api', name:'api_')]
 class MovieController extends AbstractController
@@ -17,6 +19,7 @@ class MovieController extends AbstractController
     public function __construct(
         public EntityManagerInterface $em,
         public SerializerInterface $serializer,
+        public TagAwareCacheInterface $cachePool,
     )
     {
 
@@ -36,18 +39,39 @@ class MovieController extends AbstractController
     {
         $page = $request->get('page', 1);
         $limit = $request->get('limit', 3);
-        $movies = $this->em->getRepository(Movie::class)->findAllWithPagination($page, $limit);
-        $jsonSerializer = $this->serializer->serialize($movies, 'json');
+
+        $idCache = "getAllMovies-" . $page . "-" . $limit;
+        $movieList = $this->cachePool->get($idCache, function (ItemInterface $item) use ($page,$limit){
+            $item->tag("moviesCache");
+            return $this->em->getRepository(Movie::class)->findAllWithPagination($page, $limit);
+        });
+
+        // $movies = $this->em->getRepository(Movie::class)->findAllWithPagination($page, $limit);
+
+        if(!$movieList){
+            return new JsonResponse([
+                'status' => 'error',
+                'message' => 'Il est possible qu\'il n\'y ait pas assez de résultat pour être affiché sur cette page'
+            ]);
+        }
+
+        $jsonSerializer = $this->serializer->serialize($movieList, 'json');
         return new JsonResponse($jsonSerializer, Response::HTTP_OK, [], true);
     }
 
     #[Route('/movies/{id}', name:'movies_details', methods: ['GET'])]
     public function getDetailsMovies(int $id): JsonResponse
     {
-        $movie = $this->em->getRepository(Movie::class)->findBy(['id'=> $id]);
-        if($movie)
+
+        $idCache = 'getMoviesDetails-' . $id;
+        $movieDetails = $this->cachePool->get($idCache, function (ItemInterface $item) use($id){
+            $item->tag('moviesDetailsCache');
+            return $this->em->getRepository(Movie::class)->findBy(['id'=> $id]);
+        });
+        
+        if($movieDetails)
         {
-            $jsonSerializer = $this->serializer->serialize($movie, 'json');
+            $jsonSerializer = $this->serializer->serialize($movieDetails, 'json');
             return new JsonResponse($jsonSerializer, Response::HTTP_OK, [], true);
         }
 
