@@ -1,9 +1,47 @@
 nelmio_api_doc:
     documentation:
         info:
-            title: My App
-            description: This is an awesome app!
+            title: DigiMovies
+            description: Super API REST en Symfony
             version: 1.0.0
-    areas: # to filter documented areas
+        paths:
+            /api/login_check:
+                post:
+                    tags:
+                        - Token
+                    operationId: postCredentialsItem
+                    summary: Permet d'obtenir le token JWT pour utilisé l'API
+                    requestBody:
+                        description: Crée un token JWT pour l'API
+                        content:
+                            application/json:
+                                schema:
+                                    $ref: '#/components/schemas/Token'
+                    responses:
+                        '200':
+                            description: Recupère le Token JWT
+                            content:
+                                application/json:
+                                    schema:
+                                        $ref: '#/components/schemas/Token'
+        components:
+            schemas:
+                Token:
+                    type: object
+                    properties:
+                        username:
+                            type: string
+                            default: Paul
+                        password:
+                            type: string
+                            default: Paul
+            securitySchemes:
+                bearerAuth:
+                    type: apiKey
+                    in: header
+                    name: Authorization
+        security:
+            - bearerAuth: []
+    areas:
         path_patterns:
-            - ^/api(?!/doc$) # Accepts routes under /api except /api/doc
+            - ^/api(?!/doc$) #Accepts routes under /api execpt /api/doc

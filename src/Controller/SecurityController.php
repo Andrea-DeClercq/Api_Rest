@@ -10,7 +10,7 @@ use Symfony\Component\Security\Http\Authentication\AuthenticationUtils;
 
 class SecurityController extends AbstractController
 {
-    #[Route('/api/login_check', name:'app_login_check')]
+    #[Route('/api/login_check', name:'app_login_check', methods: ['POST'])]
     public function api_login(): JsonResponse
     {
         $user = $this->getUser();
