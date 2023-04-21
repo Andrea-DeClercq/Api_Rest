@@ -7,9 +7,20 @@ use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use JMS\Serializer\Annotation\Groups;
+use Hateoas\Configuration\Annotation as Hateoas;
 
 // use Symfony\Component\Serializer\Annotation\Groups;
 
+/**
+ * @Hateoas\Relation(
+ *          "self",
+ *           href = @Hateoas\Route(
+ *                  "api_authors_details",
+ *                   parameters =  { "id" = "expr(object.getId())" }  
+ *                  ),
+ *          exclusion = @Hateoas\Exclusion(groups="getMovies")
+ * )
+ */
 #[ORM\Entity(repositoryClass: AuthorRepository::class)]
 class Author
 {

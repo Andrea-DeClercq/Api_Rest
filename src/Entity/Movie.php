@@ -6,11 +6,21 @@ use App\Repository\MovieRepository;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use JMS\Serializer\Annotation\Groups;
+use Hateoas\Configuration\Annotation as Hateoas;
 
 // use Symfony\Component\Serializer\Annotation\Groups;
 
 
-
+/**
+ * @Hateoas\Relation(
+ *          "self",
+ *           href = @Hateoas\Route(
+ *                  "api_movies_details",
+ *                   parameters =  { "id" = "expr(object.getId())" }  
+ *                  ),
+ *          exclusion = @Hateoas\Exclusion(groups="getMovies")
+ * )
+ */
 #[ORM\Entity(repositoryClass: MovieRepository::class)]
 class Movie
 {
