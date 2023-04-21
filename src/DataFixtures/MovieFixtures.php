@@ -17,7 +17,6 @@ class MovieFixtures extends Fixture
         {
             $movie = new Movie();
             $movie->setTitle($faker->sentence());
-            $movie->setAuthor($faker->name());
             $movie->setDescription($faker->paragraph());
             $manager->persist($movie);
         }
