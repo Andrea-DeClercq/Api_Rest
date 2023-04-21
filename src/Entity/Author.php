@@ -14,18 +14,19 @@ class Author
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
+    #[Groups('authorDetails')]
     private ?int $id = null;
 
     #[ORM\Column(length: 60, nullable: true)]
-    #[Groups('getMovies')]
+    #[Groups(['getMovies', 'authorDetails'])]
     private ?string $firstName = null;
 
     #[ORM\Column(length: 60, nullable: true)]
-    #[Groups('getMovies')]
+    #[Groups(['getMovies', 'authorDetails'])]
     private ?string $lastName = null;
 
     #[ORM\Column(length: 60, nullable: true)]
-    #[Groups('getMovies')]
+    #[Groups(['getMovies', 'authorDetails'])]
     private ?string $region = null;
 
     #[ORM\OneToMany(mappedBy: 'author', targetEntity: Movie::class)]

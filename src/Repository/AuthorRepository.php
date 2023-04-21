@@ -4,6 +4,7 @@ namespace App\Repository;
 
 use App\Entity\Author;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
+use Doctrine\ORM\Mapping\ClassMetadata;
 use Doctrine\Persistence\ManagerRegistry;
 
 /**
@@ -39,6 +40,17 @@ class AuthorRepository extends ServiceEntityRepository
         }
     }
 
+
+    public function findAllWithPagination($page, $limit)
+    {
+        $qb = $this->createQueryBuilder('m')
+            ->setFirstResult(($page - 1)* $limit)
+            ->setMaxResults($limit);
+
+            $query = $qb->getQuery();
+            $query->setFetchMode(Author::class, 'author', ClassMetadata::FETCH_EAGER);
+            return $query->getResult();
+    }
 //    /**
 //     * @return Author[] Returns an array of Author objects
 //     */

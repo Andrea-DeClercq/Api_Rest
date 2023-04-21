@@ -116,6 +116,13 @@ class UserController extends AbstractController
         ], Response::HTTP_NOT_FOUND);
     }
 
+    /**
+     * @OA\Tag(name="User")
+     *
+     * @param Request $request
+     * @param UserPasswordHasherInterface $hasher
+     * @return JsonResponse
+     */
     #[Route('/users/create', name:'create_user', methods:['POST'])]
     public function createNewUser(Request $request, UserPasswordHasherInterface $hasher): JsonResponse
     {  
@@ -148,6 +155,9 @@ class UserController extends AbstractController
         ]);
     }
 
+    /**
+     * @OA\Tag(name="User")
+     */
     #[Route('/users/{id}/delete', name:'delete_user', methods: ['DELETE'])]
     public function deleteUserFromId(int $id): JsonResponse
     {
