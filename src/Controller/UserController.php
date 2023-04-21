@@ -97,7 +97,7 @@ class UserController extends AbstractController
      *      name="id",
      *      in="path",
      *      description="ID",
-     *      @OA\Schema(type="int")
+     *      @OA\Schema(type="integer")
      * )
      * @OA\Tag(name="User")
      */
@@ -125,7 +125,47 @@ class UserController extends AbstractController
         ], Response::HTTP_NOT_FOUND);
     }
 
-    /**
+
+     /** Get Movies details
+     *
+     * @OA\Response(
+     *     response=200,
+     *     description="Retourne les détails d'un film",
+     *     @OA\JsonContent(
+     *     type="array",
+     *     @OA\Items(ref=@Model(type=User::class))
+     *     )
+     * )
+     * @OA\Parameter(
+     *      name="username",
+     *      in="query",
+     *      description="username",
+     *      @OA\Schema(type="string")
+     * )
+     * @OA\Parameter(
+     *      name="password",
+     *      in="query",
+     *      description="password",
+     *      @OA\Schema(type="string")
+     * )
+     * @OA\Parameter(
+     *      name="firstName",
+     *      in="query",
+     *      description="First name",
+     *      @OA\Schema(type="string")
+     * )
+     * @OA\Parameter(
+     *      name="lastName",
+     *      in="query",
+     *      description="Last Name",
+     *      @OA\Schema(type="string")
+     * )
+     * @OA\Parameter(
+     *      name="phoneNumber",
+     *      in="query",
+     *      description="Phone Number",
+     *      @OA\Schema(type="string")
+     * )
      * @OA\Tag(name="User")
      *
      * @param Request $request
@@ -135,11 +175,11 @@ class UserController extends AbstractController
     #[Route('/users/create', name:'create_user', methods:['POST'])]
     public function createNewUser(Request $request, UserPasswordHasherInterface $hasher): JsonResponse
     {  
-        $userName = $request->request->get('username');
-        $password = $request->request->get('password');
-        $firstName = $request->request->get('firstname');
-        $lastName = $request->request->get('lastname');
-        $phoneNumber = $request->request->get('phonenumber');
+        $userName = $request->query->get('username');
+        $password = $request->query->get('password');
+        $firstName = $request->query->get('firstname');
+        $lastName = $request->query->get('lastname');
+        $phoneNumber = $request->query->get('phonenumber');
 
         if(isset($userName) && !empty ($userName) && isset($password) && !empty($password))
         {
@@ -159,6 +199,7 @@ class UserController extends AbstractController
             ]);
         }
         return new JsonResponse([
+            'username' => $userName,
             'status' => 'error',
             'message' => 'Username ou password can\'t be null'
         ]);
