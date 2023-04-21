@@ -50,6 +50,16 @@ class MovieRepository extends ServiceEntityRepository
             $query->setFetchMode(Movie::class, 'author', ClassMetadata::FETCH_EAGER);
             return $query->getResult();
     }
+
+    public function findByIdForAuthor($id)
+    {
+        $qb = $this->createQueryBuilder('m')
+            ->andWhere('m.id = :id')
+            ->setParameter('id', $id);
+        $query = $qb->getQuery();
+        $query->setFetchMode(Movie::class, 'author', ClassMetadata::FETCH_EAGER);
+        return $query->getResult();
+    }
 //    /**
 //     * @return Movie[] Returns an array of Movie objects
 //     */

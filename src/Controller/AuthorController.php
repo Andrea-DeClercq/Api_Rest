@@ -97,15 +97,16 @@ class AuthorController extends AbstractController
     {
 
         $idCache = 'getAuthorsDetails-' . $id;
-        $userDetails = $this->cachePool->get($idCache, function(ItemInterface $item) use ($id){
+        $authorDetails = $this->cachePool->get($idCache, function(ItemInterface $item) use ($id){
             $item->tag('authorsDetailsCache');
             $item->expiresAfter(900);
             return $this->em->getRepository(Author::class)->findBy(['id'=> $id]);
         });
 
-        if($userDetails)
+        if($authorDetails)
         {
-            $jsonSerializer = $this->serializer->serialize($userDetails, 'json', ['groups' => 'authorDetails']);
+            $context = SerializationContext::create()->setGroups(['authorDetails']);
+            $jsonSerializer = $this->serializer->serialize($authorDetails, 'json', $context);
             return new JsonResponse($jsonSerializer, Response::HTTP_OK, [], true);
         }
 

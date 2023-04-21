@@ -107,12 +107,13 @@ class MovieController extends AbstractController
         $movieDetails = $this->cachePool->get($idCache, function (ItemInterface $item) use($id){
             $item->tag('moviesDetailsCache');
             $item->expiresAfter(900);
-            return $this->em->getRepository(Movie::class)->findBy(['id'=> $id]);
+            return $this->em->getRepository(Movie::class)->findByIdForAuthor($id);
         });
         
         if($movieDetails)
         {
-            $jsonSerializer = $this->serializer->serialize($movieDetails, 'json');
+            $context = SerializationContext::create()->setGroups(['getMovies']);
+            $jsonSerializer = $this->serializer->serialize($movieDetails, 'json', $context);
             return new JsonResponse($jsonSerializer, Response::HTTP_OK, [], true);
         }
 
