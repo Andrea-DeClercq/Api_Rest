@@ -43,10 +43,9 @@ class MovieController extends AbstractController
         $idCache = "getAllMovies-" . $page . "-" . $limit;
         $movieList = $this->cachePool->get($idCache, function (ItemInterface $item) use ($page,$limit){
             $item->tag("moviesCache");
+            $item->expiresAfter(900);
             return $this->em->getRepository(Movie::class)->findAllWithPagination($page, $limit);
         });
-
-        // $movies = $this->em->getRepository(Movie::class)->findAllWithPagination($page, $limit);
 
         if(!$movieList){
             return new JsonResponse([
@@ -66,6 +65,7 @@ class MovieController extends AbstractController
         $idCache = 'getMoviesDetails-' . $id;
         $movieDetails = $this->cachePool->get($idCache, function (ItemInterface $item) use($id){
             $item->tag('moviesDetailsCache');
+            $item->expiresAfter(900);
             return $this->em->getRepository(Movie::class)->findBy(['id'=> $id]);
         });
         

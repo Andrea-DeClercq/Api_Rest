@@ -4,6 +4,7 @@ namespace App\Repository;
 
 use App\Entity\Movie;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
+use Doctrine\ORM\Mapping\ClassMetadata;
 use Doctrine\Persistence\ManagerRegistry;
 
 /**
@@ -45,7 +46,9 @@ class MovieRepository extends ServiceEntityRepository
             ->setFirstResult(($page - 1)* $limit)
             ->setMaxResults($limit);
 
-        return $qb->getQuery()->getResult();
+            $query = $qb->getQuery();
+            $query->setFetchMode(Movie::class, 'movie', ClassMetadata::FETCH_EAGER);
+            return $query->getResult();
     }
 //    /**
 //     * @return Movie[] Returns an array of Movie objects

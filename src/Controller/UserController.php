@@ -36,6 +36,7 @@ class UserController extends AbstractController
         $idCache = 'getAllUsers-' . $page . '-' . $limit;
         $userList = $this->cachePool->get($idCache, function (ItemInterface $item) use ($page,$limit){
             $item->tag('usersCache');
+            $item->expiresAfter(900);
             return $this->em->getRepository(User::class)->findAllWithPagination($page, $limit);
         });
 
@@ -57,6 +58,7 @@ class UserController extends AbstractController
         $idCache = 'getUsersDetails-' . $id;
         $userDetails = $this->cachePool->get($idCache, function(ItemInterface $item) use ($id){
             $item->tag('usersDetailsCache');
+            $item->expiresAfter(900);
             return $this->em->getRepository(User::class)->findBy(['id'=> $id]);
         });
 
@@ -108,10 +110,11 @@ class UserController extends AbstractController
     #[Route('/users/{id}/delete', name:'delete_user', methods: ['DELETE'])]
     public function deleteUserFromId(int $id): JsonResponse
     {
-        $movie = $this->em->getRepository(User::class)->findBy(['id'=> $id]);
-        if($movie)
+        $user = $this->em->getRepository(User::class)->findBy(['id'=> $id]);
+        if($user)
         {
-            $this->em->remove($movie[0]);
+            $this->cachePool->invalidateTags(['usersCache', 'usersDetailsCache']);
+            $this->em->remove($user[0]);
             $this->em->flush();
             return new JsonResponse([
                 'status' => 'success',

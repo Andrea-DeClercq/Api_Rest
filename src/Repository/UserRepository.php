@@ -4,6 +4,7 @@ namespace App\Repository;
 
 use App\Entity\User;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
+use Doctrine\ORM\Mapping\ClassMetadata;
 use Doctrine\Persistence\ManagerRegistry;
 use Symfony\Component\Security\Core\Exception\UnsupportedUserException;
 use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
@@ -62,7 +63,11 @@ class UserRepository extends ServiceEntityRepository implements PasswordUpgrader
             ->setFirstResult(($page - 1)* $limit)
             ->setMaxResults($limit);
 
-        return $qb->getQuery()->getResult();
+        $query = $qb->getQuery();
+        $query->setFetchMode(User::class, 'user', ClassMetadata::FETCH_EAGER);
+        return $query->getResult();
+        // return $qb->getQuery()
+        //     ->getResult();
     }
 
 //    /**
