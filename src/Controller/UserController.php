@@ -211,11 +211,21 @@ class UserController extends AbstractController
     #[Route('/users/{id}/delete', name:'delete_user', methods: ['DELETE'])]
     public function deleteUserFromId(int $id): JsonResponse
     {
-        $user = $this->em->getRepository(User::class)->findBy(['id'=> $id]);
+        $userConnected = $this->getUser();
+        $user = $this->em->getRepository(User::class)->findOneBy(['id'=> $id]);
+
+        if($userConnected->getRoles() != in_array('ROLE_ADMIN',$userConnected->getRoles()))
+        {
+            return new JsonResponse([
+                'status' => 'error',
+                'message' => 'Pas l\'autorisation nécessaire.'
+            ], Response::HTTP_NOT_FOUND);
+        }
+
         if($user)
         {
             $this->cachePool->invalidateTags(['usersCache', 'usersDetailsCache']);
-            $this->em->remove($user[0]);
+            $this->em->remove($user);
             $this->em->flush();
             return new JsonResponse([
                 'status' => 'success',
