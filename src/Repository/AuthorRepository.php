@@ -48,7 +48,7 @@ class AuthorRepository extends ServiceEntityRepository
             ->setMaxResults($limit);
 
             $query = $qb->getQuery();
-            $query->setFetchMode(Author::class, 'author', ClassMetadata::FETCH_EAGER);
+            $query->setFetchMode(Author::class, 'movies', ClassMetadata::FETCH_EAGER);
             return $query->getResult();
     }
 //    /**

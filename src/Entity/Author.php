@@ -43,6 +43,7 @@ class Author
     private ?string $region = null;
 
     #[ORM\OneToMany(mappedBy: 'author', targetEntity: Movie::class)]
+    #[Groups(['authorDetails'])]
     private Collection $movies;
 
     public function __construct()

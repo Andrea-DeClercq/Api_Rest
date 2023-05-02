@@ -74,7 +74,7 @@ class AuthorController extends AbstractController
                 'message' => 'Il est possible qu\'il n\'y ait pas assez de résultat pour être affiché sur cette page'
             ]);
         }
-        $context = SerializationContext::create()->setGroups(['authorDetails']);
+        $context = SerializationContext::create()->setGroups(['authorDetails', 'getMovies']);
         $jsonSerializer = $this->serializer->serialize($authorsList, 'json', $context);
         return new JsonResponse($jsonSerializer, Response::HTTP_OK, [], true);
     }
@@ -105,7 +105,7 @@ class AuthorController extends AbstractController
 
         if($authorDetails)
         {
-            $context = SerializationContext::create()->setGroups(['authorDetails']);
+            $context = SerializationContext::create()->setGroups(['authorDetails', 'getMovies']);
             $jsonSerializer = $this->serializer->serialize($authorDetails, 'json', $context);
             return new JsonResponse($jsonSerializer, Response::HTTP_OK, [], true);
         }
