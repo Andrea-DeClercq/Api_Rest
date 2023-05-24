@@ -126,11 +126,11 @@ class UserController extends AbstractController
     }
 
 
-     /** Get Movies details
+     /** Get User details
      *
      * @OA\Response(
      *     response=200,
-     *     description="Retourne les détails d'un film",
+     *     description="Retourne les détails d'un user",
      *     @OA\JsonContent(
      *     type="array",
      *     @OA\Items(ref=@Model(type=User::class))
@@ -149,19 +149,19 @@ class UserController extends AbstractController
      *      @OA\Schema(type="string")
      * )
      * @OA\Parameter(
-     *      name="firstName",
+     *      name="firstname",
      *      in="query",
      *      description="First name",
      *      @OA\Schema(type="string")
      * )
      * @OA\Parameter(
-     *      name="lastName",
+     *      name="lastname",
      *      in="query",
      *      description="Last Name",
      *      @OA\Schema(type="string")
      * )
      * @OA\Parameter(
-     *      name="phoneNumber",
+     *      name="phonenumber",
      *      in="query",
      *      description="Phone Number",
      *      @OA\Schema(type="string")
@@ -230,6 +230,36 @@ class UserController extends AbstractController
             return new JsonResponse([
                 'status' => 'success',
                 'message' => 'User deleted'
+            ], Response::HTTP_OK);
+        }
+
+        return new JsonResponse([
+            'status' => 'error',
+            'message' => 'Pas d\'utilisateur'
+        ], Response::HTTP_NOT_FOUND);
+    }
+
+    /** Get currently user logged
+    *
+    * @OA\Response(
+    *     response=200,
+    *     description="Retourne le user connecté actuel",
+    *     @OA\JsonContent(
+    *     type="array",
+    *     @OA\Items(ref=@Model(type=User::class))
+    *     )
+    * )
+    * @OA\Tag(name="Token")
+    * */
+    #[Route('/whoiam', name:'who_i_am', methods: ['GET'])]
+    public function whoIsLogged()
+    {
+        $user = $this->getUser();
+
+        if($user){
+            return new JsonResponse([
+                'status' => 'Logged',
+                'message' => 'Currently log as ' . $user->getFirstName() . ' ' . $user->getLastName() . ' !'
             ], Response::HTTP_OK);
         }
 
