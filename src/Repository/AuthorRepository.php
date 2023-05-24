@@ -41,7 +41,7 @@ class AuthorRepository extends ServiceEntityRepository
     }
 
 
-    public function findAllWithPagination($page, $limit)
+    public function findAllWithPagination(int $page, int $limit)
     {
         $qb = $this->createQueryBuilder('m')
             ->setFirstResult(($page - 1)* $limit)
@@ -51,28 +51,4 @@ class AuthorRepository extends ServiceEntityRepository
             $query->setFetchMode(Author::class, 'movies', ClassMetadata::FETCH_EAGER);
             return $query->getResult();
     }
-//    /**
-//     * @return Author[] Returns an array of Author objects
-//     */
-//    public function findByExampleField($value): array
-//    {
-//        return $this->createQueryBuilder('a')
-//            ->andWhere('a.exampleField = :val')
-//            ->setParameter('val', $value)
-//            ->orderBy('a.id', 'ASC')
-//            ->setMaxResults(10)
-//            ->getQuery()
-//            ->getResult()
-//        ;
-//    }
-
-//    public function findOneBySomeField($value): ?Author
-//    {
-//        return $this->createQueryBuilder('a')
-//            ->andWhere('a.exampleField = :val')
-//            ->setParameter('val', $value)
-//            ->getQuery()
-//            ->getOneOrNullResult()
-//        ;
-//    }
 }

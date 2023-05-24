@@ -40,7 +40,7 @@ class MovieRepository extends ServiceEntityRepository
         }
     }
 
-    public function findAllWithPagination($page, $limit)
+    public function findAllWithPagination(int $page,int $limit)
     {
         $qb = $this->createQueryBuilder('m')
             ->setFirstResult(($page - 1)* $limit)
@@ -51,7 +51,7 @@ class MovieRepository extends ServiceEntityRepository
             return $query->getResult();
     }
 
-    public function findByIdForAuthor($id)
+    public function findByIdForAuthor(int $id)
     {
         $qb = $this->createQueryBuilder('m')
             ->andWhere('m.id = :id')
@@ -60,28 +60,4 @@ class MovieRepository extends ServiceEntityRepository
         $query->setFetchMode(Movie::class, 'author', ClassMetadata::FETCH_EAGER);
         return $query->getResult();
     }
-//    /**
-//     * @return Movie[] Returns an array of Movie objects
-//     */
-//    public function findByExampleField($value): array
-//    {
-//        return $this->createQueryBuilder('m')
-//            ->andWhere('m.exampleField = :val')
-//            ->setParameter('val', $value)
-//            ->orderBy('m.id', 'ASC')
-//            ->setMaxResults(10)
-//            ->getQuery()
-//            ->getResult()
-//        ;
-//    }
-
-//    public function findOneBySomeField($value): ?Movie
-//    {
-//        return $this->createQueryBuilder('m')
-//            ->andWhere('m.exampleField = :val')
-//            ->setParameter('val', $value)
-//            ->getQuery()
-//            ->getOneOrNullResult()
-//        ;
-//    }
 }
